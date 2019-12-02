@@ -33,15 +33,27 @@ def save_image(img, file_path, text_path):
     new_dir, eg_f = os.path.split(file_path)
     new_dir = os.path.abspath(os.path.join(new_dir, text_path))
 
-    if not os.path.exists(new_dir):
-        os.makedirs(new_dir)
-    # print('IMG', img, img.packed_file)
-    if img.is_dirty or bool(img.packed_file):
+    if os.path.exists(new_dir) is False:
+        os.mkdir(new_dir)
+        print('DIR is not exist: Creating... ', new_dir)
+        print('Texture: ', img.name)
+        r_path = os.path.abspath(os.path.join(new_dir, old_f))
+        img.save_render(r_path)
+        print('RENDER IMAGE to %s; rel path: %s' % (r_path, rel_path))
+    elif os.path.exists(new_dir) is True:
+        print('DIR is exist: ', new_dir)
+        print('Texture: ', img.name)
+        r_path = os.path.abspath(os.path.join(new_dir, old_f))
+        img.save_render(r_path)
+        print('RENDER IMAGE to %s; rel path: %s' % (r_path, rel_path))
+
+    if not os.path.exists(new_dir) and img.is_dirty or bool(img.packed_file):
         try:
             bpy.context.scene.render.image_settings.color_mode = 'RGBA'
         except:
             bpy.context.scene.render.image_settings.color_mode = 'RGB'
         r_path = os.path.abspath(os.path.join(new_dir, old_f))
+
         img.save_render(r_path)
         print('RENDER IMAGE to %s; rel path: %s' % (r_path, rel_path))
     else:

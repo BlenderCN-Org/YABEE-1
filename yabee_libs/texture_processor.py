@@ -38,8 +38,6 @@ class PbrTextures:
         for obj in self.obj_list:
             if obj.type == 'MESH':
                 print("processing object", obj)
-                use_uv_face_tex = False
-                use_uv_face_tex_alpha = False
                 # General textures
                 handled = set()
                 for f in obj.data.polygons:
