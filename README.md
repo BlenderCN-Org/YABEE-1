@@ -13,7 +13,7 @@ Exporting:
 - ShapeKeys (morph) animation
 - Non cyclic NURBS Curves
 
-YABEE TODO's
+Missing features/TODO
 =====
 - Texture baking
 - Vertex colors
