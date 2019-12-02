@@ -10,3 +10,8 @@ Exporting:
 - Armature (skeleton) animation
 - ShapeKeys (morph) animation
 - Non cyclic NURBS Curves
+
+Missing features/TODO
+=====
+- Texture baking
+- Vertex colors
