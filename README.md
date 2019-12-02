@@ -1,7 +1,7 @@
 ![logo](http://i.imgur.com/lVMTcfS.png)
 YABEE
 =====
-Egg exporter for the Blender 2.8
+Renewed Egg exporter for the Blender 2.8
 
 Exporting:
 - Meshes
