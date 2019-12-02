@@ -17,5 +17,5 @@ Missing features/TODO
 =====
 - Texture baking via Cycles
 - Vertex colors
-- Automatic construct the Panda3D_PBR_ nodegroup
+- Automatic construct the Panda3D_PBR nodegroup
 
