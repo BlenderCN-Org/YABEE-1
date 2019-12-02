@@ -904,13 +904,6 @@ class EGGActorObjectData(EGGMeshObjectData):
                 j_str += ar.get_full_egg_str(self.joint_vtx_ref, mod.object, -1)
         return j_str
 
-    # def get_full_egg_str(self):
-    #    """ Return string representation of the EGG animated object data.
-    #    """
-    #    return self.get_vtx_pool_str() + '\n' \
-    #            + self.get_polygons_str() + '\n' \
-    #            + self.get_joints_str() + '\n'
-
 
 class EGGAnimJoint(Group):
     """ Representation of the <Joint> animation data. Has the same
@@ -1515,10 +1508,6 @@ def write_out(fname, anims, from_actions, uv_img_as_tex, sep_anim, a_only,
                         for tex in mat_slot.material.node_tree.nodes:
                             if tex.type == 'TEX_IMAGE':
                                 ms_names.append(tex.image and tex.image.name or "")
-        msmap = NAME_SEPARATOR.join(ms_names)
-        # import pdb; pdb.set_trace()
-        # I don't know yet for what it does need just commented
-        # mat.yabee_material_slots = msmap
 
     for arm in bpy.data.armatures:
         arm.yabee_name = arm.name
