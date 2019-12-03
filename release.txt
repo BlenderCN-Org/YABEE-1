@@ -1,3 +1,8 @@
+------------- Release 14.0 ---------------
+* Some bugfixes.
+* Blender 2.80 support.
+* Experimental PBR support.
+
 ------------- Release 13.0 ---------------
 * Some bugfixes.
 * Blender 2.66 support
