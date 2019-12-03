@@ -15,7 +15,7 @@ bl_info = {
     "description": ("Export to Panda3D EGG: meshes, uvs, materials, textures, "
                     "armatures, animation and curves"),
     "warning": "May contain bugs. Make backup of your file before use.",
-    "wiki_url": ("http://www.panda3d.org/forums/viewtopic.php?t=11441"),
+    "wiki_url": "http://www.panda3d.org/forums/viewtopic.php?t=11441",
     "tracker_url": "yabee.googlecode.com",
     "category": "Import-Export"}
 
@@ -255,7 +255,7 @@ class YABEEProperty(bpy.types.PropertyGroup):
         return warns
 
     def reset_defaults(self):
-        self.opt_tex_proc = 'SIMPLE'
+        self.opt_tex_proc = 'BAKE'
         self.opt_tbs_proc = 'NO'
         self.opt_bake_diffuse.export = True
         self.opt_bake_diffuse.res_x, self.opt_bake_diffuse.res_y = 512, 512
