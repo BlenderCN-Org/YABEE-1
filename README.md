@@ -27,8 +27,13 @@ The group was given the special name Panda3D_PBR (former Panda3D_RP_Diffuse_mat)
 Group and usage as shown below:
 
 <img src="http://pasteall.org/pic/show.php?id=8e31dccfbd796ed63a8c7d0d63e231f3" />
+Panda3D_PBR NodeGroup
 
 <img src="http://pasteall.org/pic/show.php?id=67cf5e0998de108735e6f1e9f8d458de" />
+Panda3D_PBR NodeGroup
+
+<img src="http://pasteall.org/pic/show.php?id=c278bebee6e22ce886ffd4448948c70f" />
+Cube in Panda3D via pview
 
 To use it, you have to switch blenders renderer to cycles, create a material for your mesh, set up the „Panda3D_PBR NodeGroup“ and connect the inputs you need as shown in the pictures. Select your model and export with YABEE. There is no need to manually select the PBR-Option. If the material uses Nodes and the nodegroup is present  YABEE will automatically export in PBR mode.
 Be sure to connect all the required texture inputs, each with a UV-Map input.
