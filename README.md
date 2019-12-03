@@ -30,7 +30,7 @@ in Panda3D it was possible to extend YABEE to improve the workflow for artists w
 <p style="font-size: small">YABEE becomes more Blender-compatible: No special Nodegroup is needed anymore</p>
 
 To use it, you have to create a material for your mesh, set up the Principled BSDF shader 
-by connecting at least the Image Texture shader and UV Map.
+by connecting at least the Image Texture shader and optionally UV Map.
 
 The PBR node support is still work in progress, if you find important features missing please contact the developers.
 

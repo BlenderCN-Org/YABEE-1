@@ -32,7 +32,6 @@ class PbrTextures:
                           'transform': [(type, val), (type, val), ...]
                         }
         """
-        print("starting texture collection")
         tex_list = {}
         print(self.obj_list)
         for obj in self.obj_list:
@@ -64,21 +63,28 @@ class PbrTextures:
                                     if textureNode.image == None:
                                         print("WARNING: Texture node has no image assigned!", obj.name,
                                               link.to_socket.name)
-                                        continue
+                                        # continue
 
                                     if not textureNode.inputs[0].is_linked:
-                                        print("WARNING: Texture has no UV-INPUT!", obj.name, link.to_socket.name)
-                                        continue
+                                        print("WARNING: Texture has no UV-INPUT!", obj.name,
+                                              link.to_socket.name)
+                                        print("INFO: Adding UV Map from the material:", obj.name)
 
                                     scalars = []
 
                                     # we have to crawl the links again
                                     # we finally found the uv-map connected to the texture we want
+                                    # or we take it from the material
                                     for link2 in mat.node_tree.links:
                                         if link2.to_node == textureNode:
                                             uvNode = link2.from_node
                                             if uvNode.uv_map:
                                                 scalars.append(('uv-name', uvNode.uv_map))
+                                            else:
+                                                a = [uv for uv in obj.data.uv_layers if uv.active]
+                                                uv_map = [x.name for x in a]
+                                                scalars.append(('uv-name', uv_map))
+
                                             scalars.append(('envtype', "Modulate"))
 
                                     t_path = textureNode.image.filepath
