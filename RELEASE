@@ -1,3 +1,9 @@
+------------- Release 14.1 ---------------
+* Some bugfixes.
+* Blender 2.80 support.
+* Experimental PBR support.
+* Initial Principled BSDF shader support.
+
 ------------- Release 14.0 ---------------
 * Some bugfixes.
 * Blender 2.80 support.

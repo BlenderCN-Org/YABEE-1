@@ -1,5 +1,5 @@
 """
-    Part of the YABEE rev 14.0
+    Part of the YABEE
 """
 import bpy
 import os

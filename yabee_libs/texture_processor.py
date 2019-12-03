@@ -41,24 +41,21 @@ class PbrTextures:
                 # General textures
                 handled = set()
                 for f in obj.data.polygons:
-                    print("processing polygon", f)
+                    # print("processing polygon", f)
                     if f.material_index < len(obj.data.materials):
-                        print("found material index")
+                        # print("found material index")
                         mat = obj.data.materials[f.material_index]
                         if not mat or mat in handled:
                             continue
-                        print("found new material")
+                        # print("found new material")
                         handled.add(mat)
 
-                        # we do need an empty for specular
-                        # but it's added somewhere else
-                        nodeNames = {"ColorTex": None, "RoughnessTex": None, "NormalTex": None,
-                                     "SpecularDummyTex": None}
+                        nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
                             # if the link connects to the panda3d compatible node
-                            if link.to_node.name == "Panda3D_PBR":
+                            if link.to_node.name == "Principled BSDF":
                                 print("INFO: Found the Panda3D compatible node")
                                 # and it connects to one of our known sockets...
                                 if link.to_socket.name in nodeNames.keys():
@@ -80,11 +77,11 @@ class PbrTextures:
                                     for link2 in mat.node_tree.links:
                                         if link2.to_node == textureNode:
                                             uvNode = link2.from_node
-                                            scalars.append(('uv-name', uvNode.uv_map))
+                                            if uvNode.uv_map:
+                                                scalars.append(('uv-name', uvNode.uv_map))
                                             scalars.append(('envtype', "Modulate"))
 
                                     t_path = textureNode.image.filepath
-                                    # import pdb; pdb.set_trace()
                                     if self.copy_tex:
                                         t_path = save_image(textureNode.image, self.file_path, self.tex_path)
 

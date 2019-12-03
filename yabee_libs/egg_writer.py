@@ -665,34 +665,33 @@ class EGGMeshObjectData(EGGBaseObjectData):
             if material:
                 if material.use_nodes:
                     nodeTree = material.node_tree
-                    if nodeTree.nodes.get("Panda3D_PBR"):
+                    if nodeTree.nodes:
                         matIsFancyPBRNode = True
 
                         if matIsFancyPBRNode:
                             # print(USED_TEXTURES)
                             # we need to find a couple of textures here
                             # we do need an empty for specular but it's added somewhere else
-                            nodeNames = {"ColorTex": None, "RoughnessTex": None, "NormalTex": None,
-                                         "SpecularDummyTex": None}
-                            # let's crawl all links, find the ones connected to the PandaPBRNode,
-                            # find the connected textures, use them.
+                            nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
+                            # let's crawl all links, find the ones connected to the Principled BSDF,
                             for link in material.node_tree.links:
-                                # if the link connects to the panda3ddiffuse node
+                                # if the link connects to the Principled BSDF node
                                 # and it connects to one of our known sockets...
-                                if link.to_node.name == "Panda3D_PBR":
+                                if link.to_node.name == "Principled BSDF":
                                     if link.to_socket.name in nodeNames.keys():
                                         textureNode = link.from_node
                                         # we have to find the texture name here.
                                         nodeNames[link.to_socket.name] = textureNode.name
 
-                            for x in ["ColorTex", "NormalTex", "SpecularDummyTex", "RoughnessTex"]:
+                            for x in ['Surface', 'Base Color', 'Vector']:
                                 tex = nodeNames[x]
                                 if tex:
                                     textures.append(tex)
-                                else:
+                                """else:
                                     pass
                                     textures.append("empty")
-                                    # todo: append empty texture for the slot
+                                    print("Used empty texture!")
+                                    # todo: append empty texture for the slot"""
 
                     else:
                         # The object has no material, that means it will get no textures
@@ -1137,39 +1136,38 @@ def get_egg_materials_str(object_names=None):
         nodeTree = None
         if mat.use_nodes:
             nodeTree = mat.node_tree
-            if nodeTree.nodes.get("Panda3D_PBR"):
+            if nodeTree.nodes:
                 matIsFancyPBRNode = True
                 containsPBRNodes = True
                 matFancyType = 0
 
         if matIsFancyPBRNode:
             if matFancyType == 0:
-                pandaShaderNode = nodeTree.nodes.get("Panda3D_PBR")
+                for pandaShaderNode in nodeTree.links:
+                    if pandaShaderNode.to_node.name == "Principled BSDF":
+                        principled_bsdf = pandaShaderNode.to_node
+                        # import pdb; pdb.set_trace()
+                        metallic = 0
+                        # surface = principled_bsdf.inputs['Surface'].default_value
+                        # vector = principled_bsdf.inputs["Vector"].default_value
+                        basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                        base_r = basecol[0]
+                        base_g = basecol[1]
+                        base_b = basecol[2]
 
-                metallic = 0
-                roughness = pandaShaderNode.inputs.get("RoughnessVal").default_value
-                ior = pandaShaderNode.inputs.get("IOR").default_value
-                col = list(pandaShaderNode.inputs.get("ColorVal").default_value)
-                base_r = col[0]
-                base_g = col[1]
-                base_b = col[2]
+                        # mat_str += '  <Scalar> surface { %s }\n' % STRF(surface)
+                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
+                        # mat_str += '  <Scalar> vector { %s }\n' % STRF(vector)
 
-                normalStrength = pandaShaderNode.inputs.get("NormalStrength").default_value
+                        mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                        mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                        mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                        # mat_str += '  <Scalar> basea { %s }\n' % STRF(1.0)
 
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
-                mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(ior)
-
-                mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
-                mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
-                mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
-                # mat_str += '  <Scalar> basea { %s }\n' % STRF(1.0)
-
-                # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                shading_model_id = 0
-                mat_str += '  <Scalar> emitr { %s }\n' % STRF(shading_model_id)
-                mat_str += '  <Scalar> emitg { %s }\n' % STRF(normalStrength)
-                mat_str += '  <Scalar> emitb { %s }\n' % STRF(0.0)
+                        # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                        shading_model_id = 0
+                        mat_str += '  <Scalar> emitr { %s }\n' % STRF(shading_model_id)
+                        mat_str += '  <Scalar> emitb { %s }\n' % STRF(0.0)
 
         elif EXPORT_PBS and hasattr(mat, "pbepbs"):
 
@@ -1185,9 +1183,9 @@ def get_egg_materials_str(object_names=None):
             # where arbitrary depends on the shading model
 
             if pbepbs.shading_model == "EMISSIVE":
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(1.0)
+                mat_str += '  <Scalar> surface { %s }\n' % STRF(1.0)
                 mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(1.0)
+                mat_str += '  <Scalar> vector { %s }\n' % STRF(1.0)
 
                 mat_str += '  <Scalar> baser { %s }\n' % STRF(material.diffuse_color[0] * pbepbs.emissive_factor)
                 mat_str += '  <Scalar> baseg { %s }\n' % STRF(material.diffuse_color[1] * pbepbs.emissive_factor)
@@ -1208,8 +1206,8 @@ def get_egg_materials_str(object_names=None):
                 else:
                     mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
 
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(pbepbs.roughness)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(pbepbs.ior)
+                mat_str += '  <Scalar> surface { %s }\n' % STRF(pbepbs.roughness)
+                mat_str += '  <Scalar> vector { %s }\n' % STRF(pbepbs.ior)
 
                 if pbepbs.shading_model in ("DEFAULT", "CLEARCOAT", "SKIN"):
                     arbitrary0, arbitrary1 = 0, 0
