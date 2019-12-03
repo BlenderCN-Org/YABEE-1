@@ -7,7 +7,7 @@ from bpy.props import *
 from .yabee_libs import egg_writer
 
 bl_info = {
-    "name": "Panda3d EGG format",
+    "name": "Panda3D EGG format",
     "author": "Andrey (Ninth) Arbuzov",
     "blender": (2, 80, 0),
     "api": 41226,

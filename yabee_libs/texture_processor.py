@@ -55,22 +55,26 @@ class PbrTextures:
                         for link in mat.node_tree.links:
                             # if the link connects to the panda3d compatible node
                             if link.to_node.name == "Principled BSDF":
-                                print("INFO: Found the Panda3D compatible node")
+                                print("INFO: Found the Panda3D compatible Principled BSDF shader")
                                 # and it connects to one of our known sockets...
+
+                                scalars = []
+
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
                                     if textureNode.image == None:
                                         print("WARNING: Texture node has no image assigned!", obj.name,
                                               link.to_socket.name)
-                                        # continue
+                                        continue
 
-                                    if not textureNode.inputs[0].is_linked:
+                                    if textureNode.inputs[0].is_linked is False:
                                         print("WARNING: Texture has no UV-INPUT!", obj.name,
                                               link.to_socket.name)
                                         print("INFO: Adding UV Map from the material:", obj.name)
-
-                                    scalars = []
+                                        a = [uv for uv in obj.data.uv_layers if uv.active]
+                                        uv_map = [x.name for x in a]
+                                        scalars.append(('uv-name', uv_map.pop()))
 
                                     # we have to crawl the links again
                                     # we finally found the uv-map connected to the texture we want
@@ -83,9 +87,7 @@ class PbrTextures:
                                             else:
                                                 a = [uv for uv in obj.data.uv_layers if uv.active]
                                                 uv_map = [x.name for x in a]
-                                                scalars.append(('uv-name', uv_map))
-
-                                            scalars.append(('envtype', "Modulate"))
+                                                scalars.append(('uv-name', uv_map.pop()))
 
                                     t_path = textureNode.image.filepath
                                     if self.copy_tex:
@@ -149,7 +151,8 @@ class PbrTextures:
                                     tex_list[textureNode.name] = {'path': t_path,
                                                                   'scalars': scalars, 'transform': transform}
                                 else:
-                                    print("WARNING: The Panda3D compatible node not found. Texture was not exported!")
+                                    print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
+                                          "Texture was not exported!")
 
         return tex_list
 

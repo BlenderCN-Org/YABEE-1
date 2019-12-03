@@ -1252,7 +1252,7 @@ def get_egg_materials_str(object_names=None):
     used_textures = {}
 
     if containsPBRNodes:
-        print("Found Panda3D compatible nodegroup. Collecting PBR textures")
+        print("Found Panda3D compatible Principled BSDF shader. Collecting PBR textures")
         pbrtex = PbrTextures(objects,
                              EXPORT_UV_IMAGE_AS_TEXTURE,
                              COPY_TEX_FILES,
@@ -1260,7 +1260,7 @@ def get_egg_materials_str(object_names=None):
         used_textures.update(pbrtex.get_used_textures())
 
     else:
-        print("Panda3D compatible nodegroup not found, See Manual to create it first...")
+        print("Panda3D compatible Principled BSDF shader not found, See Manual to create it first...")
 
     """if TEXTURE_PROCESSOR == 'BAKE':
         tb = TextureBaker(objects, FILE_PATH, TEX_PATH)
