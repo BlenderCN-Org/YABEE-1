@@ -141,7 +141,6 @@ class Group:
                     self.children.append(gr)
                     gr.make_hierarchy_from_list(obj_list)
         except Exception as exc:
-            # print('\n'.join(format_tb(exc.__traceback__)))
             print_exc()
             return ['ERR_MK_HIERARCHY', ]
         return []
@@ -171,7 +170,6 @@ class Group:
         if self.object:
             if self.object.__class__ == bpy.types.Bone:
                 egg_str.append('%s<Joint> %s {\n' % ('  ' * level, eggSafeName(self.object.yabee_name)))
-                # self._yabee_object = EGGJointObjectData(self.object, {}, self.arm_owner)
             else:
                 egg_str.append('%s<Group> %s {\n' % ('  ' * level, eggSafeName(self.object.yabee_name)))
                 if self.object.type == 'MESH' \
@@ -209,11 +207,7 @@ class EGGArmature(Group):
         """
         egg_str = ''
         if self.object:
-            # egg_str += '%s<Joint> %s {\n' % ('  ' * level, eggSafeName(self.object.name))
             egg_str += '%s<Joint> %s {\n' % ('  ' * level, eggSafeName(self.object.yabee_name))
-            # Get vertices reference by Bone name from globlal armature vref
-            # if self.object.name in list(vrefs.keys()):
-            #    vref = vrefs[self.object.name]
             if self.object.yabee_name in list(vrefs.keys()):
                 vref = vrefs[self.object.yabee_name]
             else:
@@ -288,7 +282,6 @@ class EGGNurbsCurveObjectData(EGGBaseObjectData):
                 for line in vtx_str.splitlines():
                     vtx_pool += '  ' + line + '\n'
             vtx_pool += '}\n'
-            # vtx_pool = '<VertexPool> %s {\n %s}\n' % (eggSafeName(self.obj_ref.yabee_name), '\n  '.join(vertices))
         return vtx_pool
 
     def get_curves_str(self):
@@ -399,21 +392,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
                 if obj.data.materials[f.material_index].use_nodes:
                     uses_nodes = True
 
-            """ This block was related to Blender Render 
-            for slot in obj.data.objects[f.material_index].material_slots:
-                import pdb;
-                pdb.set_trace()
-                
-                if slot and slot.texture_coords == 'ORCO':
-                    need_orco = True
-                    break
-
-        print("orcocheck", uses_nodes, need_orco)
-        if (need_orco == True) and (uses_nodes == False):
-            print("starting orco calc")
-            self.pre_calc_ORCO()
-        """
-
         # Store current active UV name
         self.active_uv = None
         # now there is no uv_layers attribute, instead uv_layers
@@ -484,11 +462,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
         if self.obj_ref.data.vertex_colors.active:
             for col in self.obj_ref.data.vertex_colors.active.data:
                 color_vtx_ref.append(col.color)  # We have one color per data color
-            # for fi, face in enumerate(self.obj_ref.data.polygons):
-            #    col = self.obj_ref.data.vertex_colors.active.data[fi]
-            #    col = col.color1[:], col.color2[:], col.color3[:], col.color4[:]
-            #    for vi, v in enumerate(face.vertices):
-            #        color_vtx_ref.append(col[vi])
         return color_vtx_ref
 
     def pre_calc_TBS(self):
@@ -692,7 +665,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
             if material:
                 if material.use_nodes:
                     nodeTree = material.node_tree
-                    if nodeTree.nodes.get("Panda3D_RP_Diffuse_Mat"):
+                    if nodeTree.nodes.get("Panda3D_PBR"):
                         matIsFancyPBRNode = True
 
                         if matIsFancyPBRNode:
@@ -706,7 +679,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
                             for link in material.node_tree.links:
                                 # if the link connects to the panda3ddiffuse node
                                 # and it connects to one of our known sockets...
-                                if link.to_node.name == "Panda3D_RP_Diffuse_Mat":
+                                if link.to_node.name == "Panda3D_PBR":
                                     if link.to_socket.name in nodeNames.keys():
                                         textureNode = link.from_node
                                         # we have to find the texture name here.
@@ -768,7 +741,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
         @return: list of polygon's attributes.
         """
         no = self.obj_ref.matrix_world.to_euler().to_matrix() @ face.normal
-        # attributes.append('<Normal> {%s %s %s}' % (STRF(no[0]), STRF(no[1]), STRF(no[2])))
         attributes.append('<Normal> {%f %f %f}' % no[:])
         return attributes
 
@@ -819,7 +791,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
         vertexref = self.collect_poly_vertexref
         polygons = []
         for f in self.obj_ref.data.polygons:
-            # poly = '<Polygon> {\n'
             attributes = []
             tref(f, attributes)
             mref(f, attributes)
@@ -827,9 +798,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
             rgba(f, attributes)
             bface(f, attributes)
             vertexref(f, attributes)
-            # for attr in attributes:
-            #    for attr_str in attr.splitlines():
-            #        poly += '  ' + attr_str + '\n'
             poly = '<Polygon> {\n  %s \n}\n' % ('\n  '.join(attributes),)
 
             polygons.append(poly)
@@ -995,17 +963,6 @@ class AnimCollector:
         for obj in obj_list:
             if obj.__class__ != bpy.types.Bone:
                 if obj.type == 'MESH':
-                    '''
-                    for mod in obj.modifiers:
-                        if mod:
-                            if mod.type == 'ARMATURE':
-                                self.bone_groups[obj.yabee_name] = EGGAnimJoint(None)
-                                self.bone_groups[obj.yabee_name].make_hierarchy_from_list(mod.object.data.bones)
-                                if obj.yabee_name not in list(self.obj_anim_ref.keys()):
-                                    self.obj_anim_ref[obj.yabee_name] = {}
-                                self.obj_anim_ref[obj.yabee_name]['<skeleton>'] = \
-                                        self.collect_arm_anims(mod.object)
-                    '''
                     if ((obj.data.shape_keys) and (len(obj.data.shape_keys.key_blocks) > 1)):
                         if obj.yabee_name not in list(self.obj_anim_ref.keys()):
                             self.obj_anim_ref[obj.yabee_name] = {}
@@ -1163,6 +1120,7 @@ def get_egg_materials_str(object_names=None):
             for obj in bpy.context.scene.objects:
                 if obj.yabee_name == name:
                     objects.append(obj)
+    mat = None
     if not objects:
         return ''
 
@@ -1176,16 +1134,17 @@ def get_egg_materials_str(object_names=None):
 
         matIsFancyPBRNode = False
         matFancyType = 0  # default (diffuse) = 0 ,
+        nodeTree = None
         if mat.use_nodes:
             nodeTree = mat.node_tree
-            if nodeTree.nodes.get("Panda3D_RP_Diffuse_Mat"):
+            if nodeTree.nodes.get("Panda3D_PBR"):
                 matIsFancyPBRNode = True
                 containsPBRNodes = True
                 matFancyType = 0
 
         if matIsFancyPBRNode:
             if matFancyType == 0:
-                pandaShaderNode = nodeTree.nodes.get("Panda3D_RP_Diffuse_Mat")
+                pandaShaderNode = nodeTree.nodes.get("Panda3D_PBR")
 
                 metallic = 0
                 roughness = pandaShaderNode.inputs.get("RoughnessVal").default_value
@@ -1295,12 +1254,15 @@ def get_egg_materials_str(object_names=None):
     used_textures = {}
 
     if containsPBRNodes:
-        print("collecting PBR textures")
+        print("Found Panda3D compatible nodegroup. Collecting PBR textures")
         pbrtex = PbrTextures(objects,
                              EXPORT_UV_IMAGE_AS_TEXTURE,
                              COPY_TEX_FILES,
                              FILE_PATH, TEX_PATH)
         used_textures.update(pbrtex.get_used_textures())
+
+    else:
+        print("Panda3D compatible nodegroup not found, See Manual to create it first...")
 
     """if TEXTURE_PROCESSOR == 'BAKE':
         tb = TextureBaker(objects, FILE_PATH, TEX_PATH)

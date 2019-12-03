@@ -26,7 +26,7 @@ class PbrTextures:
 
     def get_used_textures(self):
         """ Collect images from the UV images and Material texture slots
-        tex_list structure:
+            tex_list structure:
             image_name: { 'scalars': [(name, val), (name, val), ...],
                           'path': 'path/to/texture',
                           'transform': [(type, val), (type, val), ...]
@@ -37,7 +37,7 @@ class PbrTextures:
         print(self.obj_list)
         for obj in self.obj_list:
             if obj.type == 'MESH':
-                print("processing object", obj)
+                print("Processing object", obj)
                 # General textures
                 handled = set()
                 for f in obj.data.polygons:
@@ -57,20 +57,20 @@ class PbrTextures:
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
-                            # if the link connects to the panda3ddiffuse node
-                            if link.to_node.name == "Panda3D_RP_Diffuse_Mat":
-                                print("found new panda3d diffuse node")
+                            # if the link connects to the panda3d compatible node
+                            if link.to_node.name == "Panda3D_PBR":
+                                print("INFO: Found the Panda3D compatible node")
                                 # and it connects to one of our known sockets...
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
                                     if textureNode.image == None:
-                                        print("WARNING: Texture node has no image assigned", obj.name,
+                                        print("WARNING: Texture node has no image assigned!", obj.name,
                                               link.to_socket.name)
                                         continue
 
                                     if not textureNode.inputs[0].is_linked:
-                                        print("WARNING: Texture has no UV-INPUT", obj.name, link.to_socket.name)
+                                        print("WARNING: Texture has no UV-INPUT!", obj.name, link.to_socket.name)
                                         continue
 
                                     scalars = []
@@ -145,6 +145,9 @@ class PbrTextures:
                                     # finally add everything to the list
                                     tex_list[textureNode.name] = {'path': t_path,
                                                                   'scalars': scalars, 'transform': transform}
+                                else:
+                                    print("WARNING: The Panda3D compatible node not found. Texture was not exported!")
+
         return tex_list
 
 
