@@ -572,7 +572,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
         if idx in self.smooth_vtx_list:
             no = self.obj_ref.matrix_world.to_euler().to_matrix() @ self.obj_ref.data.loops[
                 self.map_vertex_to_loop[v]].normal
-            attributes.append('<Normal> { %f %f %f }' % no[:])
+            attributes.append('  <Normal> { %f %f %f }' % no[:])
         return attributes
 
     def collect_vtx_rgba(self, vidx, face, attributes):
@@ -582,7 +582,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
                 mat = self.obj_ref.data.materials[face.material_index]
                 if FORCE_EXPORT_VERTEX_COLORS or mat:
                     col = self.colors_vtx_ref[vidx]
-                    attributes.append('<RGBA> { %f %f %f 1.0 }' % col[:])
+                    attributes.append('  <RGBA> { %f %f %f %f }' % col[:])
         else:
             # if material has no texture:
             for mat in self.obj_ref.data.materials:
