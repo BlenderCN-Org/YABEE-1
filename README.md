@@ -8,10 +8,12 @@ Renewed Egg exporter for the Blender 2.8 and Panda3D
 Exporting:
 - Meshes
 - UV layers
+- Materials 
+- Vertex colors
 - Textures (Initial PBR) via EEVEE/Cycles
 - Armature (skeleton) animation
 - ShapeKeys (morph) animation
-- Non cyclic NURBS Curves
+- Non-cyclic NURBS Curves
 
 Missing features/TODO
 =====
