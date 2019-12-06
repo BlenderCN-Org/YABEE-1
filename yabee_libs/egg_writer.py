@@ -583,6 +583,10 @@ class EGGMeshObjectData(EGGBaseObjectData):
                 if FORCE_EXPORT_VERTEX_COLORS or mat:
                     col = self.colors_vtx_ref[vidx]
                     attributes.append('  <RGBA> { %f %f %f %f }' % col[:])
+            else:
+                # Write out vertex colors if no material applied
+                col = self.colors_vtx_ref[vidx]
+                attributes.append('  <RGBA> { %f %f %f %f }' % col[:])
         else:
             # if material has no texture:
             for mat in self.obj_ref.data.materials:
@@ -609,14 +613,10 @@ class EGGMeshObjectData(EGGBaseObjectData):
             if self.tangent_layers:
                 tbs = '\n    <Tangent> {%f %f %f}\n    <Binormal> {%f %f %f}' % self.tangent_layers[i][ividx]
 
-            for mat in bpy.data.materials:
-                nodeTree = mat.node_tree
-                if nodeTree.nodes:
-                    for pandaShaderNode in nodeTree.links:
-                        if pandaShaderNode.to_node.name == "Principled BSDF":
-                            uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
-                                eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
-                            attributes.append(uv_str)
+            if bpy.data.materials[0].node_tree.links[0].to_node.name == "Principled BSDF":
+                uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
+                    eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
+                attributes.append(uv_str)
 
         return attributes
 
