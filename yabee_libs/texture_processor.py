@@ -49,26 +49,27 @@ class PbrTextures:
                         # print("found new material")
                         handled.add(mat)
 
+                        scalars = []
                         nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
-                            # if the link connects to the panda3d compatible node
+                            # if the link connects to the Panda3D compatible node
                             if link.to_node.name == "Principled BSDF":
                                 print("INFO: Found the Panda3D compatible Principled BSDF shader")
                                 # and it connects to one of our known sockets...
 
-                                scalars = []
-
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
-                                    if textureNode.image == None:
-                                        print("WARNING: Texture node has no image assigned!", obj.name,
-                                              link.to_socket.name)
-                                        continue
+                                    if hasattr(textureNode, 'image'):
+                                        if textureNode.image == None:
+                                            print("WARNING: Texture node has no image assigned!", obj.name,
+                                                  link.to_socket.name)
+                                            continue
 
-                                    if textureNode.inputs[0].is_linked is False:
+                                    if (textureNode.inputs[0].is_linked is False
+                                            and textureNode.image == None):
                                         print("WARNING: Texture has no UV-INPUT!", obj.name,
                                               link.to_socket.name)
                                         print("INFO: Adding UV Map from the material:", obj.name)
@@ -82,7 +83,7 @@ class PbrTextures:
                                     for link2 in mat.node_tree.links:
                                         if link2.to_node == textureNode:
                                             uvNode = link2.from_node
-                                            if uvNode.uv_map:
+                                            if hasattr(uvNode, 'uv_map'):
                                                 scalars.append(('uv-name', uvNode.uv_map))
                                             else:
                                                 a = [uv for uv in obj.data.uv_layers if uv.active]
@@ -154,7 +155,7 @@ class PbrTextures:
                                     print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
                                           "Texture was not exported!")
 
-        return tex_list
+            return tex_list
 
 
 class TextureBaker:
