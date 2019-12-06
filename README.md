@@ -17,7 +17,6 @@ Exporting:
 
 Missing features/TODO
 =====
-- Materials & Vertex colors
 - Texture baking via Cycles
 
 Principled Shader Support
