@@ -155,7 +155,7 @@ class PbrTextures:
                                     print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
                                           "Texture was not exported!")
 
-            return tex_list
+        return tex_list
 
 
 class TextureBaker:
