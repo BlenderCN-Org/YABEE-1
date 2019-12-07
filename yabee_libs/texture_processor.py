@@ -66,10 +66,10 @@ class PbrTextures:
                                         if textureNode.image == None:
                                             print("WARNING: Texture node has no image assigned!", obj.name,
                                                   link.to_socket.name)
-                                            continue
+                                            # continue
 
                                     if (textureNode.inputs[0].is_linked is False
-                                            and textureNode.image == None):
+                                            and textureNode.image):
                                         print("WARNING: Texture has no UV-INPUT!", obj.name,
                                               link.to_socket.name)
                                         print("INFO: Adding UV Map from the material:", obj.name)
