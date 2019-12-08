@@ -27,6 +27,9 @@ in Panda3D it was possible to extend YABEE to improve the workflow for artists w
 <img src="http://pasteall.org/pic/show.php?id=c278bebee6e22ce886ffd4448948c70f" />
 <p style="font-size: small">Cube in Panda3D via pview</p>
 
+<img src="http://pasteall.org/pic/show.php?id=577bde9e918f165b565fbfe48af5e640" />
+<p style="font-size: small">Multimeshed object using multple (two) textures in Panda3D</p>
+
 <img src="http://pasteall.org/pic/show.php?id=0ba65151691c7eb6873771d89c77c466" />
 <p style="font-size: small">YABEE becomes more Blender-compatible: No special Nodegroup is needed anymore</p>
 
