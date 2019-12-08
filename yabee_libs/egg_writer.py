@@ -613,14 +613,10 @@ class EGGMeshObjectData(EGGBaseObjectData):
             if self.tangent_layers:
                 tbs = '\n    <Tangent> {%f %f %f}\n    <Binormal> {%f %f %f}' % self.tangent_layers[i][ividx]
                 attributes.append(tbs)
-                
-            """uv_str = None
-            for link in bpy.data.materials:
-                for node in link.node_tree.links:
-                    if node.to_node.name == "Image Texture":
-                        uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
-                            eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
-                        attributes.append(uv_str)"""
+
+            uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
+                eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
+            attributes.append(uv_str)
 
         return attributes
 

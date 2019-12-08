@@ -66,7 +66,13 @@ class PbrTextures:
                                         if textureNode.image == None:
                                             print("WARNING: Texture node has no image assigned!", obj.name,
                                                   link.to_socket.name)
-                                            # continue
+
+                                        # Make unique named Image Texture node by assigning the texture name
+                                        # so we can use multiple textures for multimeshed object
+                                        if textureNode.name:
+                                            textureNode.name = textureNode.image.name
+                                            print("INFO: {} node is renamed to {}".format(textureNode.name,
+                                                                                          textureNode.image.name))
 
                                     if (textureNode.inputs[0].is_linked is False
                                             and textureNode.image):
@@ -150,7 +156,7 @@ class PbrTextures:
 
                                     # finally add everything to the list
                                     tex_list[textureNode.name] = {'path': t_path,
-                                                                  'scalars': scalars, 'transform': transform}
+                                                                        'scalars': scalars, 'transform': transform}
                                 else:
                                     print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
                                           "Texture was not exported!")
@@ -354,4 +360,3 @@ if __name__ == '__main__':
 
     """tb = TextureBaker(bpy.context.selected_objects, './exp_test/test.egg', './tex')
     print(tb.bake())"""
-
