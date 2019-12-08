@@ -56,4 +56,4 @@ Before exporting:
 <img src="http://pasteall.org/pic/show.php?id=909fc4a59a7b60aff1c7c23eefb1dc6a" />
 
 1. Select all meshes of the character except armature, or
-2 Select all meshes of the character including armature
+2. Select all meshes of the character including armature
