@@ -10,13 +10,14 @@ Exporting:
 - UV layers
 - Materials 
 - Vertex colors
-- Textures (Initial PBR) via EEVEE/Cycles
+- Textures 
 - Armature (skeleton) animation
 - ShapeKeys (morph) animation
 - Non-cyclic NURBS Curves
 
 Missing features/TODO
 =====
+- PBR support via EEVEE/Cycles
 - Texture baking via Cycles
 
 Principled Shader Support
