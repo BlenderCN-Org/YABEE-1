@@ -39,7 +39,7 @@ by connecting at least the Image Texture shader and optionally UV Map.
 The PBR node support is still work in progress, if you find important features missing please contact the developers.
 
 **Use this version of YABEE carefully. It may contain bugs and may not work for objects with complex node system 
-applied.
+applied.**
+
 1. Do backup of your blend files first or revert the project after exporting.
-2. To avoid further issues, don't save your project after export is done. Save it BEFORE exporting. 
-**
+2. To avoid further issues, don't save your project after export is done. Save it BEFORE exporting.
