@@ -41,5 +41,5 @@ The PBR node support is still work in progress, if you find important features m
 **Use this version of YABEE carefully. It may contain bugs and may not work for objects with complex node system 
 applied.**
 
-1. Do backup of your blend files first or revert the project after exporting.
-2. To avoid further issues, don't save your project after export is done. Save it BEFORE exporting.
+1. **Do backup** of your blend files first or revert the project after exporting.
+2. To avoid further issues, don't save your project after export is done. Save it **BEFORE** exporting.
