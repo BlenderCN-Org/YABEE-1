@@ -35,6 +35,10 @@ in Panda3D it was possible to extend YABEE to improve the workflow for artists w
 <p style="font-size: small">My multimeshed rigged character using multple textures in Panda3D 
 (Particle-made hair has no texture, unsupported yet) </p>
 
+<img src="http://pasteall.org/pic/show.php?id=759bde93c4cebf99ad9460bed2826504" />
+<p style="font-size: small">My multimeshed rigged character using multple textures in Panda3D 
+(Regular meshes) </p>
+
 <img src="http://pasteall.org/pic/show.php?id=0ba65151691c7eb6873771d89c77c466" />
 <p style="font-size: small">YABEE becomes more Blender-compatible: No special Nodegroup is needed anymore</p>
 

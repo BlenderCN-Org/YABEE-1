@@ -156,7 +156,7 @@ class PbrTextures:
 
                                     # finally add everything to the list
                                     tex_list[textureNode.name] = {'path': t_path,
-                                                                        'scalars': scalars, 'transform': transform}
+                                                                  'scalars': scalars, 'transform': transform}
                                 else:
                                     print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
                                           "Texture was not exported!")

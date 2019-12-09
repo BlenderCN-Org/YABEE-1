@@ -1156,6 +1156,7 @@ def get_egg_materials_str(object_names=None):
         if matIsFancyPBRNode:
             if matFancyType == 0:
                 for pandaShaderNode in nodeTree.links:
+
                     if pandaShaderNode.to_node.name == "Principled BSDF":
                         principled_bsdf = pandaShaderNode.to_node
                         metallic = 0
@@ -1184,8 +1185,6 @@ def get_egg_materials_str(object_names=None):
                             if node.name == "Principled BSDF":
                                 principled_bsdf = node
                                 metallic = 0
-                                # surface = principled_bsdf.inputs['Surface'].default_value
-                                # vector = principled_bsdf.inputs["Vector"].default_value
                                 basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                                 base_r = basecol[0]
                                 base_g = basecol[1]
@@ -1516,9 +1515,8 @@ def write_out(fname, anims, from_actions, uv_img_as_tex, sep_anim, a_only,
                         and obj.parent not in incl_arm
                         and obj.parent not in obj_list):
                     incl_arm.append(obj.parent)
-        # incl_arm = list(incl_arm)[:]
-        # print(incl_arm)
         obj_list += incl_arm
+        # print("DEBUG: ", obj_list)
         print('Objects for export:', [obj.yabee_name for obj in obj_list])
 
         errors += gr.make_hierarchy_from_list(obj_list)
