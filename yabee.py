@@ -1,4 +1,4 @@
-""" YABEE rev 14.0
+""" YABEE
 """
 import bpy
 import os

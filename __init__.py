@@ -7,7 +7,7 @@ from bpy.props import *
 from .yabee_libs import egg_writer
 
 bl_info = {
-    "name": "Panda3d EGG format",
+    "name": "Panda3D EGG format",
     "author": "Andrey (Ninth) Arbuzov",
     "blender": (2, 80, 0),
     "api": 41226,
@@ -196,7 +196,9 @@ class YABEEProperty(bpy.types.PropertyGroup):
         layout.row().prop(self, 'opt_separate_anim_files')
         if not self.opt_anim_only:
             layout.row().prop(self, 'opt_tbs_proc')
-            box = layout.box()
+
+            # Hide Texture Baking dialog until Texture Baking will be reimplemented
+            """box = layout.box()
             box.row().prop(self, 'opt_tex_proc')
             if self.opt_tex_proc == 'BAKE':
                 self.opt_bake_diffuse.draw(box.row(align=True), "Diffuse")
@@ -205,7 +207,7 @@ class YABEEProperty(bpy.types.PropertyGroup):
                 self.opt_bake_glow.draw(box.row(align=True), "Glow")
             if self.opt_tex_proc != 'RAW':
                 self.opt_bake_AO.draw(box.row(align=True), "AO")
-                self.opt_bake_shadow.draw(box.row(align=True), "Shadow")
+                self.opt_bake_shadow.draw(box.row(align=True), "Shadow")"""
 
             if self.opt_copy_tex_files or self.opt_tex_proc == 'BAKE':
                 box = layout.box()

@@ -572,7 +572,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
         if idx in self.smooth_vtx_list:
             no = self.obj_ref.matrix_world.to_euler().to_matrix() @ self.obj_ref.data.loops[
                 self.map_vertex_to_loop[v]].normal
-            attributes.append('<Normal> { %f %f %f }' % no[:])
+            attributes.append('  <Normal> { %f %f %f }' % no[:])
         return attributes
 
     def collect_vtx_rgba(self, vidx, face, attributes):
@@ -580,9 +580,21 @@ class EGGMeshObjectData(EGGBaseObjectData):
             # Don't write out vertex colors unless a material actually uses it.
             if face.material_index < len(self.obj_ref.data.materials):
                 mat = self.obj_ref.data.materials[face.material_index]
-                if FORCE_EXPORT_VERTEX_COLORS or (mat and mat.use_vertex_color_paint):
+                if FORCE_EXPORT_VERTEX_COLORS or mat:
                     col = self.colors_vtx_ref[vidx]
-                    attributes.append('<RGBA> { %f %f %f 1.0 }' % col[:])
+                    attributes.append('  <RGBA> { %f %f %f %f }' % col[:])
+            else:
+                # Write out vertex colors if no material applied
+                col = self.colors_vtx_ref[vidx]
+                attributes.append('  <RGBA> { %f %f %f %f }' % col[:])
+        else:
+            # if material has no texture:
+            for mat in self.obj_ref.data.materials:
+                nodeTree = mat.node_tree
+                if nodeTree.nodes:
+                    for pandaShaderNode in nodeTree.links:
+                        if pandaShaderNode.to_node.name == "Material Output":
+                            attributes.append('  <RGBA> { 1 1 1 1 }')
         return attributes
 
     def collect_vtx_uv(self, vidx, ividx, attributes):
@@ -600,7 +612,10 @@ class EGGMeshObjectData(EGGBaseObjectData):
             tbs = ''
             if self.tangent_layers:
                 tbs = '\n    <Tangent> {%f %f %f}\n    <Binormal> {%f %f %f}' % self.tangent_layers[i][ividx]
-            uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
+                attributes.append(tbs)
+
+            uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
+                eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
             attributes.append(uv_str)
 
         return attributes
@@ -665,34 +680,28 @@ class EGGMeshObjectData(EGGBaseObjectData):
             if material:
                 if material.use_nodes:
                     nodeTree = material.node_tree
-                    if nodeTree.nodes.get("Panda3D_PBR"):
+                    if nodeTree.nodes:
                         matIsFancyPBRNode = True
 
                         if matIsFancyPBRNode:
                             # print(USED_TEXTURES)
                             # we need to find a couple of textures here
                             # we do need an empty for specular but it's added somewhere else
-                            nodeNames = {"ColorTex": None, "RoughnessTex": None, "NormalTex": None,
-                                         "SpecularDummyTex": None}
-                            # let's crawl all links, find the ones connected to the PandaPBRNode,
-                            # find the connected textures, use them.
+                            nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
+                            # let's crawl all links, find the ones connected to the Principled BSDF,
                             for link in material.node_tree.links:
-                                # if the link connects to the panda3ddiffuse node
+                                # if the link connects to the Principled BSDF node
                                 # and it connects to one of our known sockets...
-                                if link.to_node.name == "Panda3D_PBR":
+                                if link.to_node.name == "Principled BSDF":
                                     if link.to_socket.name in nodeNames.keys():
                                         textureNode = link.from_node
                                         # we have to find the texture name here.
                                         nodeNames[link.to_socket.name] = textureNode.name
 
-                            for x in ["ColorTex", "NormalTex", "SpecularDummyTex", "RoughnessTex"]:
+                            for x in ['Surface', 'Base Color', 'Vector']:
                                 tex = nodeNames[x]
                                 if tex:
                                     textures.append(tex)
-                                else:
-                                    pass
-                                    textures.append("empty")
-                                    # todo: append empty texture for the slot
 
                     else:
                         # The object has no material, that means it will get no textures
@@ -1120,12 +1129,13 @@ def get_egg_materials_str(object_names=None):
             for obj in bpy.context.scene.objects:
                 if obj.yabee_name == name:
                     objects.append(obj)
-    mat = None
     if not objects:
         return ''
 
     mat_str = ''
     used_materials = get_used_materials(objects)
+    print('INFO: Used materials: ', used_materials)
+
     containsPBRNodes = False
     for m_idx in used_materials:
         mat = bpy.data.materials[m_idx]
@@ -1133,128 +1143,76 @@ def get_egg_materials_str(object_names=None):
         # MARK
 
         matIsFancyPBRNode = False
-        matFancyType = 0  # default (diffuse) = 0 ,
+        matFancyType = 0
         nodeTree = None
         if mat.use_nodes:
             nodeTree = mat.node_tree
-            if nodeTree.nodes.get("Panda3D_PBR"):
+            if nodeTree.nodes:
                 matIsFancyPBRNode = True
                 containsPBRNodes = True
                 matFancyType = 0
 
+        basecol = None
         if matIsFancyPBRNode:
             if matFancyType == 0:
-                pandaShaderNode = nodeTree.nodes.get("Panda3D_PBR")
+                for pandaShaderNode in nodeTree.links:
+                    if pandaShaderNode.to_node.name == "Principled BSDF":
+                        principled_bsdf = pandaShaderNode.to_node
+                        metallic = 0
+                        # surface = principled_bsdf.inputs['Surface'].default_value
+                        # vector = principled_bsdf.inputs["Vector"].default_value
+                        basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                        base_r = basecol[0]
+                        base_g = basecol[1]
+                        base_b = basecol[2]
+                        base_a = basecol[3]
 
-                metallic = 0
-                roughness = pandaShaderNode.inputs.get("RoughnessVal").default_value
-                ior = pandaShaderNode.inputs.get("IOR").default_value
-                col = list(pandaShaderNode.inputs.get("ColorVal").default_value)
-                base_r = col[0]
-                base_g = col[1]
-                base_b = col[2]
+                        mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                        mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                        mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                        mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
 
-                normalStrength = pandaShaderNode.inputs.get("NormalStrength").default_value
+                        # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                        mat_str += '  <Scalar> roughness { %s }\n' % STRF(0.0)
+                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
+                        mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
-                mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(ior)
+                    elif pandaShaderNode.to_node.name == 'Material Output':
+                        print("INFO: {} is using for!".format(pandaShaderNode.to_node.name)),
+                        objects = bpy.context.selected_objects
+                        for node in bpy.data.materials[0].node_tree.nodes:
+                            if node.name == "Principled BSDF":
+                                principled_bsdf = node
+                                metallic = 0
+                                # surface = principled_bsdf.inputs['Surface'].default_value
+                                # vector = principled_bsdf.inputs["Vector"].default_value
+                                basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                                base_r = basecol[0]
+                                base_g = basecol[1]
+                                base_b = basecol[2]
+                                base_a = basecol[3]
 
-                mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
-                mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
-                mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
-                # mat_str += '  <Scalar> basea { %s }\n' % STRF(1.0)
+                                mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                                mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                                mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                                mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
 
-                # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                shading_model_id = 0
-                mat_str += '  <Scalar> emitr { %s }\n' % STRF(shading_model_id)
-                mat_str += '  <Scalar> emitg { %s }\n' % STRF(normalStrength)
-                mat_str += '  <Scalar> emitb { %s }\n' % STRF(0.0)
-
-        elif EXPORT_PBS and hasattr(mat, "pbepbs"):
-
-            # The following sticks closely to Panda BAM Exporter's MaterialWriter.
-            material = mat
-            pbepbs = material.pbepbs
-            shading_model_id = (
-                "DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT",
-                "SKIN", "FOLIAGE").index(pbepbs.shading_model)
-
-            # Emissive color contains:
-            # (shading_model, normal_strength, arbitrary-0, arbitrary-1)
-            # where arbitrary depends on the shading model
-
-            if pbepbs.shading_model == "EMISSIVE":
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(1.0)
-                mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(1.0)
-
-                mat_str += '  <Scalar> baser { %s }\n' % STRF(material.diffuse_color[0] * pbepbs.emissive_factor)
-                mat_str += '  <Scalar> baseg { %s }\n' % STRF(material.diffuse_color[1] * pbepbs.emissive_factor)
-                mat_str += '  <Scalar> baseb { %s }\n' % STRF(material.diffuse_color[2] * pbepbs.emissive_factor)
-                # mat_str += '  <Scalar> basea { %s }\n' % STRF(1.0)
-
-                mat_str += '  <Scalar> emitr { %s }\n' % STRF(shading_model_id)
-                mat_str += '  <Scalar> emitg { %s }\n' % STRF(0.0)
-                mat_str += '  <Scalar> emitb { %s }\n' % STRF(0.0)
-            else:
-                mat_str += '  <Scalar> baser { %s }\n' % STRF(material.diffuse_color[0])
-                mat_str += '  <Scalar> baseg { %s }\n' % STRF(material.diffuse_color[1])
-                mat_str += '  <Scalar> baseb { %s }\n' % STRF(material.diffuse_color[2])
-
-                if pbepbs.shading_model == "CLEARCOAT" or (pbepbs.metallic and
-                                                           pbepbs.shading_model != "SKIN"):
-                    mat_str += '  <Scalar> metallic { %s }\n' % STRF(1.0)
-                else:
-                    mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
-
-                mat_str += '  <Scalar> roughness { %s }\n' % STRF(pbepbs.roughness)
-                mat_str += '  <Scalar> ior { %s }\n' % STRF(pbepbs.ior)
-
-                if pbepbs.shading_model in ("DEFAULT", "CLEARCOAT", "SKIN"):
-                    arbitrary0, arbitrary1 = 0, 0
-                elif pbepbs.shading_model == "FOLIAGE":
-                    arbitrary0, arbitrary1 = pbepbs.translucency, 0
-                elif pbepbs.shading_model == "TRANSPARENT":
-                    arbitrary0, arbitrary1 = material.alpha, 0
-
-                mat_str += '  <Scalar> emitr { %s }\n' % STRF(shading_model_id)
-                mat_str += '  <Scalar> emitg { %s }\n' % STRF(pbepbs.normal_strength)
-                mat_str += '  <Scalar> emitb { %s }\n' % STRF(arbitrary0)
-                # arbitrary1 is not used as of now.
-
-        else:
-            mat_str += '  <Scalar> diffr { %s }\n' % STRF(mat.diffuse_color[0] * mat.metallic)
-            mat_str += '  <Scalar> diffg { %s }\n' % STRF(mat.diffuse_color[1] * mat.metallic)
-            mat_str += '  <Scalar> diffb { %s }\n' % STRF(mat.diffuse_color[2] * mat.metallic)
+                                # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                                mat_str += '  <Scalar> roughness { %s }\n' % STRF(0.0)
+                                mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
+                                mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
         if TEXTURE_PROCESSOR == 'BAKE':
             mat_str += '  <Scalar> diffr { 1.0 }\n'
             mat_str += '  <Scalar> diffg { 1.0 }\n'
             mat_str += '  <Scalar> diffb { 1.0 }\n'
 
-        mat_str += '  <Scalar> specr { %s }\n' % STRF(mat.specular_color[0] * mat.specular_intensity)
-        mat_str += '  <Scalar> specg { %s }\n' % STRF(mat.specular_color[1] * mat.specular_intensity)
-        mat_str += '  <Scalar> specb { %s }\n' % STRF(mat.specular_color[2] * mat.specular_intensity)
-        if mat.alpha_threshold != 1.0:
-            mat_str += '  <Scalar> speca { %s }\n' % STRF(mat.alpha_threshold)
-        mat_str += '  <Scalar> shininess { %s }\n' % (mat.metallic / 512 * 128)
-    else:
-        mat_str += '  <Scalar> diffr { 0 }\n'
-        mat_str += '  <Scalar> diffg { 0 }\n'
-        mat_str += '  <Scalar> diffb { 0 }\n'
-        mat_str += '  <Scalar> ambr { 0 }\n'
-        mat_str += '  <Scalar> ambg { 0 }\n'
-        mat_str += '  <Scalar> ambb { 0 }\n'
-        mat_str += '  <Scalar> emitr { %s }\n' % STRF(mat.diffuse_color[0])
-        mat_str += '  <Scalar> emitg { %s }\n' % STRF(mat.diffuse_color[1])
-        mat_str += '  <Scalar> emitb { %s }\n' % STRF(mat.diffuse_color[2])
-
         mat_str += '}\n\n'
+
     used_textures = {}
 
     if containsPBRNodes:
-        print("Found Panda3D compatible nodegroup. Collecting PBR textures")
+        print("Found Panda3D compatible Principled BSDF shader. Collecting PBR textures")
         pbrtex = PbrTextures(objects,
                              EXPORT_UV_IMAGE_AS_TEXTURE,
                              COPY_TEX_FILES,
@@ -1262,7 +1220,7 @@ def get_egg_materials_str(object_names=None):
         used_textures.update(pbrtex.get_used_textures())
 
     else:
-        print("Panda3D compatible nodegroup not found, See Manual to create it first...")
+        print("Panda3D compatible Principled BSDF shader not found, See Manual to create it first...")
 
     """if TEXTURE_PROCESSOR == 'BAKE':
         tb = TextureBaker(objects, FILE_PATH, TEX_PATH)

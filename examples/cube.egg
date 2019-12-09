@@ -1,13 +1,10 @@
 <CoordinateSystem> { Z-up } 
 <Material> Material {
-  <Scalar> roughness { 0.000000 }
   <Scalar> metallic { 0.000000 }
-  <Scalar> ior { 1.450000 }
   <Scalar> baser { 0.800000 }
   <Scalar> baseg { 0.800000 }
   <Scalar> baseb { 0.800000 }
   <Scalar> emitr { 0.000000 }
-  <Scalar> emitg { 0.000000 }
   <Scalar> emitb { 0.000000 }
   <Scalar> diffr { 1.0 }
   <Scalar> diffg { 1.0 }
@@ -29,8 +26,7 @@
 }
 
 <Texture> "Image Texture" {
-  "./tex/Untitled.003.png"
-  <Scalar> uv-name { UVMap }
+  "./tex/Untitled.png"
   <Scalar> envtype { Modulate }
   <Scalar> minfilter { LINEAR_MIPMAP_LINEAR }
   <Scalar> magfilter { LINEAR_MIPMAP_LINEAR }

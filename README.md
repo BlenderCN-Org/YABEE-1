@@ -1,43 +1,59 @@
 ![logo](http://i.imgur.com/lVMTcfS.png)
 
 
-YABEE
+YABEE 14.1
 =====
-Renewed Egg exporter for the Blender 2.8
+Renewed Egg exporter for the Blender 2.8 and Panda3D
 
 Exporting:
 - Meshes
 - UV layers
-- Materials and textures (Initial PBR) via EEVEE/Cycles
+- Materials 
+- Vertex colors
+- Textures 
 - Armature (skeleton) animation
 - ShapeKeys (morph) animation
-- Non cyclic NURBS Curves
+- Non-cyclic NURBS Curves
 
 Missing features/TODO
 =====
+- PBR support via EEVEE/Cycles
 - Texture baking via Cycles
-- Vertex colors
 
-Materials & Textures: Principled Shader Support
+Principled Shader Support
 =====
-With the addition of the the principled shader in Blender and the upcomming support for physically based materials in Panda3D it was possible to extend YABEE to improve the workflow for artists when working in a PBR environment. 
-Since Panda3D does not yet fully support all features offered by Blender Node System, a special Nodegroup was crafted to give easy access to the already supproted features.
-
-The group was given the special name Panda3D_PBR (former Panda3D_RP_Diffuse_mat), this is important as YABEE will try to find this name inside the material nodes and gather its inputs. Correct names of the group input are important too (red arrows).
-Group and usage as shown below:
-
-<img src="http://pasteall.org/pic/show.php?id=8e31dccfbd796ed63a8c7d0d63e231f3" />
-Panda3D_PBR NodeGroup
-
-<img src="http://pasteall.org/pic/show.php?id=67cf5e0998de108735e6f1e9f8d458de" />
-Panda3D_PBR NodeGroup
+With the addition of the the Principled BSDF shader in Blender and the upcomming support for physically based materials 
+in Panda3D it was possible to extend YABEE to improve the workflow for artists when working in a PBR environment. 
 
 <img src="http://pasteall.org/pic/show.php?id=c278bebee6e22ce886ffd4448948c70f" />
-Cube in Panda3D via pview
+<p style="font-size: small">Cube in Panda3D via pview</p>
 
-To use it, you have to switch blenders renderer to cycles, create a material for your mesh, set up the „Panda3D_PBR NodeGroup“ and connect the inputs you need as shown in the pictures. Select your model and export with YABEE. There is no need to manually select the PBR-Option. If the material uses Nodes and the nodegroup is present  YABEE will automatically export in PBR mode.
-Be sure to connect all the required texture inputs, each with a UV-Map input.
+<img src="http://pasteall.org/pic/show.php?id=577bde9e918f165b565fbfe48af5e640" />
+<p style="font-size: small">Multimeshed object using multple (two) textures in Panda3D</p>
 
-If you do not have the required texture for the input, use the Empty*.png image delivered with YABEE.
+<img src="http://pasteall.org/pic/show.php?id=6552eed522ec9b74d47f770f05fa8edc" />
+<p style="font-size: small">My multimeshed rigged character using multple textures in Panda3D 
+(Particle-made hair has no texture, unsupported yet) </p>
+
+<img src="http://pasteall.org/pic/show.php?id=0ba65151691c7eb6873771d89c77c466" />
+<p style="font-size: small">YABEE becomes more Blender-compatible: No special Nodegroup is needed anymore</p>
+
+To use it, you have to create a material for your mesh, set up the Principled BSDF shader 
+by connecting at least the Image Texture shader and optionally UV Map.
 
 The PBR node support is still work in progress, if you find important features missing please contact the developers.
+
+**Use this version of YABEE carefully. It may contain bugs and may not work for objects with complex node system 
+applied (something more than UVMap and Texture Image).**
+
+1. **Do backup** of your blend files first or revert the project after exporting.
+2. To avoid further issues, don't save your project after export is done. Save it **BEFORE** exporting.
+
+How To Export
+=====
+Before exporting:
+
+<img src="http://pasteall.org/pic/show.php?id=909fc4a59a7b60aff1c7c23eefb1dc6a" />
+
+1. Select all meshes of the character except armature, or
+2. Select all meshes of the character including armature

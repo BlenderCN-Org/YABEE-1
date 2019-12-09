@@ -32,7 +32,6 @@ class PbrTextures:
                           'transform': [(type, val), (type, val), ...]
                         }
         """
-        print("starting texture collection")
         tex_list = {}
         print(self.obj_list)
         for obj in self.obj_list:
@@ -41,50 +40,63 @@ class PbrTextures:
                 # General textures
                 handled = set()
                 for f in obj.data.polygons:
-                    print("processing polygon", f)
+                    # print("processing polygon", f)
                     if f.material_index < len(obj.data.materials):
-                        print("found material index")
+                        # print("found material index")
                         mat = obj.data.materials[f.material_index]
                         if not mat or mat in handled:
                             continue
-                        print("found new material")
+                        # print("found new material")
                         handled.add(mat)
 
-                        # we do need an empty for specular
-                        # but it's added somewhere else
-                        nodeNames = {"ColorTex": None, "RoughnessTex": None, "NormalTex": None,
-                                     "SpecularDummyTex": None}
+                        scalars = []
+                        nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
-                            # if the link connects to the panda3d compatible node
-                            if link.to_node.name == "Panda3D_PBR":
-                                print("INFO: Found the Panda3D compatible node")
+                            # if the link connects to the Panda3D compatible node
+                            if link.to_node.name == "Principled BSDF":
+                                print("INFO: Found the Panda3D compatible Principled BSDF shader")
                                 # and it connects to one of our known sockets...
+
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
-                                    if textureNode.image == None:
-                                        print("WARNING: Texture node has no image assigned!", obj.name,
+                                    if hasattr(textureNode, 'image'):
+                                        if textureNode.image == None:
+                                            print("WARNING: Texture node has no image assigned!", obj.name,
+                                                  link.to_socket.name)
+
+                                        # Make unique named Image Texture node by assigning the texture name
+                                        # so we can use multiple textures for multimeshed object
+                                        if textureNode.name:
+                                            textureNode.name = textureNode.image.name
+                                            print("INFO: {} node is renamed to {}".format(textureNode.name,
+                                                                                          textureNode.image.name))
+
+                                    if (textureNode.inputs[0].is_linked is False
+                                            and textureNode.image):
+                                        print("WARNING: Texture has no UV-INPUT!", obj.name,
                                               link.to_socket.name)
-                                        continue
-
-                                    if not textureNode.inputs[0].is_linked:
-                                        print("WARNING: Texture has no UV-INPUT!", obj.name, link.to_socket.name)
-                                        continue
-
-                                    scalars = []
+                                        print("INFO: Adding UV Map from the material:", obj.name)
+                                        a = [uv for uv in obj.data.uv_layers if uv.active]
+                                        uv_map = [x.name for x in a]
+                                        scalars.append(('uv-name', uv_map.pop()))
 
                                     # we have to crawl the links again
                                     # we finally found the uv-map connected to the texture we want
+                                    # or we take it from the material
                                     for link2 in mat.node_tree.links:
                                         if link2.to_node == textureNode:
                                             uvNode = link2.from_node
-                                            scalars.append(('uv-name', uvNode.uv_map))
-                                            scalars.append(('envtype', "Modulate"))
+                                            if hasattr(uvNode, 'uv_map'):
+                                                scalars.append(('uv-name', uvNode.uv_map))
+                                            else:
+                                                a = [uv for uv in obj.data.uv_layers if uv.active]
+                                                uv_map = [x.name for x in a]
+                                                scalars.append(('uv-name', uv_map.pop()))
 
                                     t_path = textureNode.image.filepath
-                                    # import pdb; pdb.set_trace()
                                     if self.copy_tex:
                                         t_path = save_image(textureNode.image, self.file_path, self.tex_path)
 
@@ -144,9 +156,10 @@ class PbrTextures:
 
                                     # finally add everything to the list
                                     tex_list[textureNode.name] = {'path': t_path,
-                                                                  'scalars': scalars, 'transform': transform}
+                                                                        'scalars': scalars, 'transform': transform}
                                 else:
-                                    print("WARNING: The Panda3D compatible node not found. Texture was not exported!")
+                                    print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
+                                          "Texture was not exported!")
 
         return tex_list
 
@@ -347,4 +360,3 @@ if __name__ == '__main__':
 
     """tb = TextureBaker(bpy.context.selected_objects, './exp_test/test.egg', './tex')
     print(tb.bake())"""
-
