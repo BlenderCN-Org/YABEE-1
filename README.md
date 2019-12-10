@@ -1,7 +1,7 @@
 ![logo](http://i.imgur.com/lVMTcfS.png)
 
 
-YABEE 14.1
+YABEE 14.2
 =====
 Renewed Egg exporter for the Blender 2.8 and Panda3D
 
@@ -19,6 +19,7 @@ Missing features/TODO
 =====
 - PBR support via EEVEE/Cycles
 - Texture baking via Cycles
+- Non-Shader Mode for Materials & Textures
 
 Principled Shader Support
 =====
@@ -30,10 +31,6 @@ in Panda3D it was possible to extend YABEE to improve the workflow for artists w
 
 <img src="http://pasteall.org/pic/show.php?id=577bde9e918f165b565fbfe48af5e640" />
 <p style="font-size: small">Multimeshed object using multple (two) textures in Panda3D</p>
-
-<img src="http://pasteall.org/pic/show.php?id=6552eed522ec9b74d47f770f05fa8edc" />
-<p style="font-size: small">My multimeshed rigged character using multple textures in Panda3D 
-(Particle-made hair has no texture, unsupported yet) </p>
 
 <img src="http://pasteall.org/pic/show.php?id=759bde93c4cebf99ad9460bed2826504" />
 <p style="font-size: small">My multimeshed rigged character using multple textures in Panda3D 
@@ -47,7 +44,7 @@ by connecting at least the Image Texture shader and optionally UV Map.
 
 The PBR node support is still work in progress, if you find important features missing please contact the developers.
 
-**Use this version of YABEE carefully. It may contain bugs and may not work for objects with complex node system 
+**Use this version of YABEE carefully. It doesn't support previous Blender 2.7 versions. It may contain bugs and may not work for objects with complex node system 
 applied (something more than UVMap and Texture Image).**
 
 1. **Do backup** of your blend files first or revert the project after exporting.
@@ -61,3 +58,9 @@ Before exporting:
 
 1. Select all meshes of the character except armature, or
 2. Select all meshes of the character including armature
+
+Experimental Non-Shader Mode for Materials:
+
+This mode doesn't use Nodes.
+<img src="http://pasteall.org/pic/show.php?id=e404578d812e6bfb86c07b519bb9b385" />
+<p style="font-size: small">Disable "Use Nodes" to activate Non-Shader Mode (currently works for PBR render pipelines)</p>

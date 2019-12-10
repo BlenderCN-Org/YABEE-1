@@ -1,3 +1,11 @@
+------------- Release 14.2 ---------------
+* Some bugfixes.
+* Blender 2.80 support.
+* Experimental PBR support.
+* Initial Principled BSDF shader support.
+* Non-Shader Mode for Materials (currently works for PBR render pipelines)
+* Vertex colors
+
 ------------- Release 14.1 ---------------
 * Some bugfixes.
 * Blender 2.80 support.
