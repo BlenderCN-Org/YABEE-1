@@ -715,7 +715,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
                             attributes.append('<TRef> { %s }' % eggSafeName(tex_name))
 
                 else:
-                    if self.obj_ref.data.uv_layers:
+                    if self.obj_ref.data.uv_layers and material.use_nodes:
                         for btype, params in BAKE_LAYERS.items():
                             if len(params) == 2:
                                 params = (params[0], params[0], params[1])
@@ -1159,10 +1159,10 @@ def get_egg_materials_str(object_names=None):
 
                     if pandaShaderNode.to_node.name == "Principled BSDF":
                         principled_bsdf = pandaShaderNode.to_node
-                        metallic = 0
-                        # surface = principled_bsdf.inputs['Surface'].default_value
-                        # vector = principled_bsdf.inputs["Vector"].default_value
                         basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                        metallic = principled_bsdf.inputs["Metallic"].default_value
+                        roughness = principled_bsdf.inputs["Roughness"].default_value
+                        # specular = principled_bsdf.inputs["Specular"].default_value
                         base_r = basecol[0]
                         base_g = basecol[1]
                         base_b = basecol[2]
@@ -1174,8 +1174,8 @@ def get_egg_materials_str(object_names=None):
                         mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
 
                         # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                        mat_str += '  <Scalar> roughness { %s }\n' % STRF(0.0)
-                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
+                        mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
+                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
                         mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
                     elif pandaShaderNode.to_node.name == 'Material Output':
@@ -1184,8 +1184,10 @@ def get_egg_materials_str(object_names=None):
                         for node in bpy.data.materials[0].node_tree.nodes:
                             if node.name == "Principled BSDF":
                                 principled_bsdf = node
-                                metallic = 0
                                 basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                                metallic = principled_bsdf.inputs["Metallic"].default_value
+                                roughness = principled_bsdf.inputs["Roughness"].default_value
+                                # specular = principled_bsdf.inputs["Specular"].default_value
                                 base_r = basecol[0]
                                 base_g = basecol[1]
                                 base_b = basecol[2]
@@ -1197,11 +1199,35 @@ def get_egg_materials_str(object_names=None):
                                 mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
 
                                 # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                                mat_str += '  <Scalar> roughness { %s }\n' % STRF(0.0)
-                                mat_str += '  <Scalar> metallic { %s }\n' % STRF(0.0)
+                                mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
+                                mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
                                 mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
-        if TEXTURE_PROCESSOR == 'BAKE':
+        if matIsFancyPBRNode is False:
+            print("INFO: Non-Shader Mode is using for!")
+            if matFancyType == 0:
+                for m_val in used_materials:
+                    mat = bpy.data.materials[m_val]
+                    if mat.use_nodes is False:
+                        color = mat.diffuse_color
+                        metallic = 0
+                        basecol = list(color)
+                        base_r = basecol[0]
+                        base_g = basecol[1]
+                        base_b = basecol[2]
+                        # diff_a = diffcol[3]
+
+                        mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                        mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                        mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                        # mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
+
+                        # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                        mat_str += '  <Scalar> roughness { %s }\n' % STRF(mat.roughness)
+                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(mat.metallic)
+                        mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
+
+        if TEXTURE_PROCESSOR == 'BAKE' and mat.use_nodes:
             mat_str += '  <Scalar> diffr { 1.0 }\n'
             mat_str += '  <Scalar> diffg { 1.0 }\n'
             mat_str += '  <Scalar> diffb { 1.0 }\n'
