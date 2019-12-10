@@ -62,5 +62,6 @@ Before exporting:
 Experimental Non-Shader Mode for Materials:
 
 This mode doesn't use Nodes.
+
 <img src="http://pasteall.org/pic/show.php?id=e404578d812e6bfb86c07b519bb9b385" />
 <p style="font-size: small">Disable "Use Nodes" to activate Non-Shader Mode (currently works for PBR render pipelines)</p>
