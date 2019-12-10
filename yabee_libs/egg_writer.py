@@ -1152,11 +1152,9 @@ def get_egg_materials_str(object_names=None):
                 containsPBRNodes = True
                 matFancyType = 0
 
-        basecol = None
         if matIsFancyPBRNode:
             if matFancyType == 0:
                 for pandaShaderNode in nodeTree.links:
-
                     if pandaShaderNode.to_node.name == "Principled BSDF":
                         principled_bsdf = pandaShaderNode.to_node
                         basecol = list(principled_bsdf.inputs["Base Color"].default_value)
