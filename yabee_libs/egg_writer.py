@@ -558,6 +558,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
             # no = self.obj_ref.data.vertices[v].normal
             # no = self.obj_ref.data.loops[idx].normal
             attributes.append('<Normal> { %f %f %f }' % no[:])
+
         return attributes
 
     def collect_vtx_normal_from_loop(self, v, idx, attributes):
@@ -805,7 +806,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
             mref(f, attributes)
             normal(f, attributes)
             rgba(f, attributes)
-            bface(f, attributes)
             vertexref(f, attributes)
             poly = '<Polygon> {\n  %s \n}\n' % ('\n  '.join(attributes),)
 
