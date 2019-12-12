@@ -83,3 +83,12 @@ def eggSafeName(s):
         return '"' + s + '"'
     else:
         return s
+
+
+def node_debugger(anylist):
+    if anylist and isinstance(anylist, list):
+        print("Links:\n")
+        print([iterator.to_node.name for iterator in anylist.links])
+        print("AND\n")
+        print("Nodes:\n")
+        print([iterator.to_node.name for iterator in anylist.nodes])

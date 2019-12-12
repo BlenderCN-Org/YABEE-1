@@ -533,7 +533,8 @@ class EGGMeshObjectData(EGGBaseObjectData):
 
         @return: list of vertex attributes.
         """
-        if ((self.obj_ref.data.shape_keys) and (len(self.obj_ref.data.shape_keys.key_blocks) > 1)):
+        if (self.obj_ref.data.shape_keys
+                and (len(self.obj_ref.data.shape_keys.key_blocks) > 1)):
             for i in range(1, len(self.obj_ref.data.shape_keys.key_blocks)):
                 key = self.obj_ref.data.shape_keys.key_blocks[i]
                 vtx = self.obj_ref.data.vertices[vidx]
@@ -1154,9 +1155,32 @@ def get_egg_materials_str(object_names=None):
 
         if matIsFancyPBRNode:
             if matFancyType == 0:
-                for pandaShaderNode in nodeTree.links:
-                    if pandaShaderNode.to_node.name == "Principled BSDF":
-                        principled_bsdf = pandaShaderNode.to_node
+                if nodeTree.links[0].to_node.name == "Principled BSDF":
+                    principled_bsdf = nodeTree.links[0].to_node
+                    basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                    metallic = principled_bsdf.inputs["Metallic"].default_value
+                    roughness = principled_bsdf.inputs["Roughness"].default_value
+                    # specular = principled_bsdf.inputs["Specular"].default_value
+                    base_r = basecol[0]
+                    base_g = basecol[1]
+                    base_b = basecol[2]
+                    base_a = basecol[3]
+
+                    mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                    mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                    mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                    mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
+
+                    # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                    mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
+                    mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
+                    mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
+
+                """elif nodeTree.links[0].to_node == 'Material Output':
+                    print("INFO: {} is using for!".format(nodeTree.links[0].to_node.name)),
+                    objects = bpy.context.selected_objects
+                    if bpy.data.materials[0].node_tree.nodes[0].name == "Principled BSDF":
+                        principled_bsdf = bpy.data.materials[0].node_tree.nodes[0].name
                         basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                         metallic = principled_bsdf.inputs["Metallic"].default_value
                         roughness = principled_bsdf.inputs["Roughness"].default_value
@@ -1174,32 +1198,7 @@ def get_egg_materials_str(object_names=None):
                         # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
                         mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
                         mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
-                        mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
-
-                    elif pandaShaderNode.to_node.name == 'Material Output':
-                        print("INFO: {} is using for!".format(pandaShaderNode.to_node.name)),
-                        objects = bpy.context.selected_objects
-                        for node in bpy.data.materials[0].node_tree.nodes:
-                            if node.name == "Principled BSDF":
-                                principled_bsdf = node
-                                basecol = list(principled_bsdf.inputs["Base Color"].default_value)
-                                metallic = principled_bsdf.inputs["Metallic"].default_value
-                                roughness = principled_bsdf.inputs["Roughness"].default_value
-                                # specular = principled_bsdf.inputs["Specular"].default_value
-                                base_r = basecol[0]
-                                base_g = basecol[1]
-                                base_b = basecol[2]
-                                base_a = basecol[3]
-
-                                mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
-                                mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
-                                mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
-                                mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
-
-                                # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                                mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
-                                mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
-                                mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
+                        mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)"""
 
         if matIsFancyPBRNode is False:
             print("INFO: Non-Shader Mode is using for!")
@@ -1365,8 +1364,9 @@ def apply_modifiers(obj_list=None):
                 bpy.context.view_layer.objects.active = obj
                 try:
                     bpy.ops.object.modifier_apply(modifier=mod.name)
+                    print('INFO: Applying modifier', mod.name)
                 except:
-                    print('WARNING: can\'t apply modifier', mod.name)
+                    print('WARNING: Can\'t apply modifier', mod.name)
 
 
 def generate_shadow_uvs():

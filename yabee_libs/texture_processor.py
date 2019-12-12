@@ -50,7 +50,8 @@ class PbrTextures:
                         handled.add(mat)
 
                         scalars = []
-                        nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
+                        nodeNames = {"Base Color": None,
+                                     "Normal": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
@@ -59,6 +60,7 @@ class PbrTextures:
                                 print("INFO: Found the Panda3D compatible Principled BSDF shader")
                                 # and it connects to one of our known sockets...
 
+                                # textureNode = None
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
@@ -66,6 +68,13 @@ class PbrTextures:
                                         if textureNode.image == None:
                                             print("WARNING: Texture node has no image assigned!", obj.name,
                                                   link.to_socket.name)
+
+                                        if (link.to_socket.name == 'Base Color'
+                                                and link.to_node.inputs[0].is_linked):
+                                            scalars.append(('envtype', 'MODULATE'))
+                                        elif (link.to_socket.name == 'Normal'
+                                                and link.to_node.inputs[0].is_linked):
+                                            scalars.append(('envtype', 'NORMAL'))
 
                                         # Make unique named Image Texture node by assigning the texture name
                                         # so we can use multiple textures for multimeshed object

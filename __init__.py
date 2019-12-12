@@ -331,7 +331,7 @@ class ResetDefault(bpy.types.Operator):
 
 
 class AddAnim(bpy.types.Operator):
-    ''' Add animation record operator '''
+    """ Add animation record operator """
     bl_idname = "export.egg_anim_add"
     bl_label = "Add EGG animation"
 
