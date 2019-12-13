@@ -73,7 +73,7 @@ class PbrTextures:
                                                 and link.to_node.inputs[0].is_linked):
                                             scalars.append(('envtype', 'MODULATE'))
                                         elif (link.to_socket.name == 'Normal'
-                                                and link.to_node.inputs[0].is_linked):
+                                                and link.from_node.outputs[0].is_linked):
                                             scalars.append(('envtype', 'NORMAL'))
 
                                         # Make unique named Image Texture node by assigning the texture name

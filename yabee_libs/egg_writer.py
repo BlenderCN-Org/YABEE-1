@@ -1157,6 +1157,8 @@ def get_egg_materials_str(object_names=None):
             if matFancyType == 0:
                 if nodeTree.links[0].to_node.name == "Principled BSDF":
                     principled_bsdf = nodeTree.links[0].to_node
+                    textureNode = nodeTree.links[0].from_node
+
                     basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                     metallic = principled_bsdf.inputs["Metallic"].default_value
                     roughness = principled_bsdf.inputs["Roughness"].default_value
@@ -1176,29 +1178,30 @@ def get_egg_materials_str(object_names=None):
                     mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
                     mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
-                """elif nodeTree.links[0].to_node == 'Material Output':
+                elif nodeTree.links[0].to_node.name == 'Material Output':
                     print("INFO: {} is using for!".format(nodeTree.links[0].to_node.name)),
                     objects = bpy.context.selected_objects
-                    if bpy.data.materials[0].node_tree.nodes[0].name == "Principled BSDF":
-                        principled_bsdf = bpy.data.materials[0].node_tree.nodes[0].name
-                        basecol = list(principled_bsdf.inputs["Base Color"].default_value)
-                        metallic = principled_bsdf.inputs["Metallic"].default_value
-                        roughness = principled_bsdf.inputs["Roughness"].default_value
-                        # specular = principled_bsdf.inputs["Specular"].default_value
-                        base_r = basecol[0]
-                        base_g = basecol[1]
-                        base_b = basecol[2]
-                        base_a = basecol[3]
+                    for node in bpy.data.materials[0].node_tree.nodes:
+                        if node.name == "Principled BSDF":
+                            principled_bsdf = node
+                            basecol = list(principled_bsdf.inputs["Base Color"].default_value)
+                            metallic = principled_bsdf.inputs["Metallic"].default_value
+                            roughness = principled_bsdf.inputs["Roughness"].default_value
+                            # specular = principled_bsdf.inputs["Specular"].default_value
+                            base_r = basecol[0]
+                            base_g = basecol[1]
+                            base_b = basecol[2]
+                            base_a = basecol[3]
 
-                        mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
-                        mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
-                        mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
-                        mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
+                            mat_str += '  <Scalar> baser { %s }\n' % STRF(base_r)
+                            mat_str += '  <Scalar> baseg { %s }\n' % STRF(base_g)
+                            mat_str += '  <Scalar> baseb { %s }\n' % STRF(base_b)
+                            mat_str += '  <Scalar> basea { %s }\n' % STRF(base_a)
 
-                        # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
-                        mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
-                        mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
-                        mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)"""
+                            # ("DEFAULT", "EMISSIVE", "CLEARCOAT", "TRANSPARENT","SKIN", "FOLIAGE")
+                            mat_str += '  <Scalar> roughness { %s }\n' % STRF(roughness)
+                            mat_str += '  <Scalar> metallic { %s }\n' % STRF(metallic)
+                            mat_str += '  <Scalar> local { %s }\n' % STRF(0.0)
 
         if matIsFancyPBRNode is False:
             print("INFO: Non-Shader Mode is using for!")
