@@ -49,8 +49,9 @@ class PbrTextures:
                         # print("found new material")
                         handled.add(mat)
 
-                        scalars = []
-                        nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
+                        nodeNames = {"Base Color": None,
+                                     "Mix Shader": None,
+                                     "Normal": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
                         for link in mat.node_tree.links:
@@ -59,6 +60,7 @@ class PbrTextures:
                                 print("INFO: Found the Panda3D compatible Principled BSDF shader")
                                 # and it connects to one of our known sockets...
 
+                                # textureNode = None
                                 if link.to_socket.name in nodeNames.keys():
                                     textureNode = link.from_node
 
@@ -67,6 +69,20 @@ class PbrTextures:
                                             print("WARNING: Texture node has no image assigned!", obj.name,
                                                   link.to_socket.name)
 
+                                        scalars = []
+
+                                        if (link.to_socket.name == 'Base Color'
+                                                and link.to_node.inputs[0].is_linked):
+                                            scalars.append(('envtype', 'MODULATE'))
+
+                                        elif (link.to_socket.name == 'Mix Shader'
+                                              and link.from_node.inputs[0].is_linked):
+                                            scalars.append(('alpha-file', "{}{}".format(textureNode.image.filepath,
+                                                                                        textureNode.image.name)))
+                                        elif (link.to_socket.name == 'Normal'
+                                              and link.from_node.outputs[0].is_linked):
+                                            scalars.append(('envtype', 'NORMAL'))
+
                                         # Make unique named Image Texture node by assigning the texture name
                                         # so we can use multiple textures for multimeshed object
                                         if textureNode.name:
@@ -74,89 +90,89 @@ class PbrTextures:
                                             print("INFO: {} node is renamed to {}".format(textureNode.name,
                                                                                           textureNode.image.name))
 
-                                    if (textureNode.inputs[0].is_linked is False
-                                            and textureNode.image):
-                                        print("WARNING: Texture has no UV-INPUT!", obj.name,
-                                              link.to_socket.name)
-                                        print("INFO: Adding UV Map from the material:", obj.name)
-                                        a = [uv for uv in obj.data.uv_layers if uv.active]
-                                        uv_map = [x.name for x in a]
-                                        scalars.append(('uv-name', uv_map.pop()))
+                                        if (textureNode.inputs[0].is_linked is False
+                                                and textureNode.image):
+                                            print("WARNING: Texture has no UV-INPUT!", obj.name,
+                                                  link.to_socket.name)
+                                            print("INFO: Adding UV Map from the material:", obj.name)
+                                            a = [uv for uv in obj.data.uv_layers if uv.active]
+                                            uv_map = [x.name for x in a]
+                                            scalars.append(('uv-name', uv_map.pop()))
 
-                                    # we have to crawl the links again
-                                    # we finally found the uv-map connected to the texture we want
-                                    # or we take it from the material
-                                    for link2 in mat.node_tree.links:
-                                        if link2.to_node == textureNode:
-                                            uvNode = link2.from_node
-                                            if hasattr(uvNode, 'uv_map'):
-                                                scalars.append(('uv-name', uvNode.uv_map))
-                                            else:
-                                                a = [uv for uv in obj.data.uv_layers if uv.active]
-                                                uv_map = [x.name for x in a]
-                                                scalars.append(('uv-name', uv_map.pop()))
+                                        # we have to crawl the links again
+                                        # we finally found the uv-map connected to the texture we want
+                                        # or we take it from the material
+                                        for link2 in mat.node_tree.links:
+                                            if link2.to_node == textureNode:
+                                                uvNode = link2.from_node
+                                                if hasattr(uvNode, 'uv_map'):
+                                                    scalars.append(('uv-name', uvNode.uv_map))
+                                                else:
+                                                    a = [uv for uv in obj.data.uv_layers if uv.active]
+                                                    uv_map = [x.name for x in a]
+                                                    scalars.append(('uv-name', uv_map.pop()))
 
-                                    t_path = textureNode.image.filepath
-                                    if self.copy_tex:
-                                        t_path = save_image(textureNode.image, self.file_path, self.tex_path)
+                                        t_path = textureNode.image.filepath
+                                        if self.copy_tex:
+                                            t_path = save_image(textureNode.image, self.file_path, self.tex_path)
 
-                                    transform = []
+                                        transform = []
 
-                                    # if(textureNode.use_mipmap): #todo: find the use_mipmap flag
-                                    scalars.append(('minfilter', 'LINEAR_MIPMAP_LINEAR'))
-                                    scalars.append(('magfilter', 'LINEAR_MIPMAP_LINEAR'))
+                                        # if(textureNode.use_mipmap): #todo: find the use_mipmap flag
+                                        scalars.append(('minfilter', 'LINEAR_MIPMAP_LINEAR'))
+                                        scalars.append(('magfilter', 'LINEAR_MIPMAP_LINEAR'))
 
-                                    # Process wrap modes.
-                                    if textureNode.extension == 'EXTEND':
-                                        scalars.append(('wrap', 'CLAMP'))
+                                        # Process wrap modes.
+                                        if textureNode.extension == 'EXTEND':
+                                            scalars.append(('wrap', 'CLAMP'))
 
-                                    elif textureNode.extension in ('CLIP', 'CLIP_CUBE'):
-                                        scalars.append(('wrap', 'BORDER_COLOR'))
-                                        scalars.append(('borderr', '1'))
-                                        scalars.append(('borderg', '1'))
-                                        scalars.append(('borderb', '1'))
-                                        scalars.append(('bordera', '1'))
+                                        elif textureNode.extension in ('CLIP', 'CLIP_CUBE'):
+                                            scalars.append(('wrap', 'BORDER_COLOR'))
+                                            scalars.append(('borderr', '1'))
+                                            scalars.append(('borderg', '1'))
+                                            scalars.append(('borderb', '1'))
+                                            scalars.append(('bordera', '1'))
 
-                                    elif textureNode.extension in ('REPEAT', 'CHECKER'):
-                                        scalars.append(('wrap', 'REPEAT'))
+                                        elif textureNode.extension in ('REPEAT', 'CHECKER'):
+                                            scalars.append(('wrap', 'REPEAT'))
 
-                                    # Process coordinate mapping using a matrix.
-                                    mappings = (
-                                        textureNode.texture_mapping.mapping_x, textureNode.texture_mapping.mapping_y,
-                                        textureNode.texture_mapping.mapping_z)
+                                        # Process coordinate mapping using a matrix.
+                                        mappings = (
+                                            textureNode.texture_mapping.mapping_x, textureNode.texture_mapping.mapping_y,
+                                            textureNode.texture_mapping.mapping_z)
 
-                                    if mappings != ('X', 'Y', 'Z'):
-                                        matrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+                                        if mappings != ('X', 'Y', 'Z'):
+                                            matrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
-                                        for col, mapping in enumerate(mappings):
-                                            if mapping == 'Z':
-                                                # Z is not present when using UV coordinates.
-                                                # We always use uv for pbr so far
-                                                mapping = 'NONE'
+                                            for col, mapping in enumerate(mappings):
+                                                if mapping == 'Z':
+                                                    # Z is not present when using UV coordinates.
+                                                    # We always use uv for pbr so far
+                                                    mapping = 'NONE'
 
-                                            if mapping == 'NONE':
-                                                # It seems that Blender sets Z to 0.5 when it is not present.
-                                                matrix[4 * 3 + col] = 0.5
-                                            else:
-                                                row = ord(mapping) - ord('X')
-                                                matrix[4 * row + col] = 1
+                                                if mapping == 'NONE':
+                                                    # It seems that Blender sets Z to 0.5 when it is not present.
+                                                    matrix[4 * 3 + col] = 0.5
+                                                else:
+                                                    row = ord(mapping) - ord('X')
+                                                    matrix[4 * row + col] = 1
 
-                                        transform.append(('Matrix4', matrix))
+                                            transform.append(('Matrix4', matrix))
 
-                                    # Process texture transformations.
-                                    if tuple(textureNode.texture_mapping.scale) != (1.0, 1.0, 1.0):
-                                        # Blender scales from the centre, so shift it
-                                        # before scaling and then shift it back.
-                                        transform.append(('Translate', (-0.5, -0.5, -0.5)))
-                                        transform.append(('Scale', textureNode.texture_mapping.scale))
-                                        transform.append(('Translate', (0.5, 0.5, 0.5)))
+                                        # Process texture transformations.
+                                        if tuple(textureNode.texture_mapping.scale) != (1.0, 1.0, 1.0):
+                                            # Blender scales from the centre, so shift it
+                                            # before scaling and then shift it back.
+                                            transform.append(('Translate', (-0.5, -0.5, -0.5)))
+                                            transform.append(('Scale', textureNode.texture_mapping.scale))
+                                            transform.append(('Translate', (0.5, 0.5, 0.5)))
 
-                                    if tuple(textureNode.texture_mapping.translation) != (0.0, 0.0, 0.0):
-                                        transform.append(('Translate', textureNode.texture_mapping.translation))
+                                        if tuple(textureNode.texture_mapping.translation) != (0.0, 0.0, 0.0):
+                                            transform.append(('Translate', textureNode.texture_mapping.translation))
 
-                                    # finally add everything to the list
-                                    tex_list[textureNode.name] = {'path': t_path,
-                                                                  'scalars': scalars, 'transform': transform}
+                                        # finally add everything to the list
+                                        tex_list[textureNode.name] = {'path': t_path,
+                                                                      'scalars': scalars, 'transform': transform}
                                 else:
                                     print("WARNING: The Panda3D compatible Principled BSDF shader not found. "
                                           "Texture was not exported!")
