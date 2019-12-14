@@ -10,7 +10,7 @@ Exporting:
 - UV layers
 - Materials 
 - Vertex colors
-- Textures 
+- Textures (Diffuse textures and Normal maps)
 - Armature (skeleton) animation
 - ShapeKeys (morph) animation
 - Non-cyclic NURBS Curves
