@@ -17,7 +17,7 @@ Exporting:
 
 Missing features/TODO
 =====
-- PBR support via EEVEE/Cycles
+- Properties/tags
 - Texture baking via Cycles
 - Non-Shader Mode for Materials & Textures
 
