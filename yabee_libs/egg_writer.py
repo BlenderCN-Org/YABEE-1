@@ -1157,7 +1157,6 @@ def get_egg_materials_str(object_names=None):
             if matFancyType == 0:
                 if nodeTree.links[0].to_node.name == "Principled BSDF":
                     principled_bsdf = nodeTree.links[0].to_node
-                    textureNode = nodeTree.links[0].from_node
 
                     basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                     metallic = principled_bsdf.inputs["Metallic"].default_value
@@ -1254,6 +1253,7 @@ def get_egg_materials_str(object_names=None):
     for name, params in used_textures.items():
         mat_str += '<Texture> %s {\n' % eggSafeName(name)
         mat_str += '  "' + convertFileNameToPanda(params['path']) + '"\n'
+
         for scalar in params['scalars']:
             mat_str += ('  <Scalar> %s { %s }\n' % scalar)
 
