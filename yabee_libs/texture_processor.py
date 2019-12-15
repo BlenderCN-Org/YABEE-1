@@ -50,7 +50,6 @@ class PbrTextures:
                         handled.add(mat)
 
                         nodeNames = {"Base Color": None,
-                                     "Mix Shader": None,
                                      "Normal": None}
                         # let's crawl all links, find the ones connected to the PandaPBRNode,
                         # find the connected textures, use them.
@@ -75,10 +74,6 @@ class PbrTextures:
                                                 and link.to_node.inputs[0].is_linked):
                                             scalars.append(('envtype', 'MODULATE'))
 
-                                        elif (link.to_socket.name == 'Mix Shader'
-                                              and link.from_node.inputs[0].is_linked):
-                                            scalars.append(('alpha-file', "{}{}".format(textureNode.image.filepath,
-                                                                                        textureNode.image.name)))
                                         elif (link.to_socket.name == 'Normal'
                                               and link.from_node.outputs[0].is_linked):
                                             scalars.append(('envtype', 'NORMAL'))

@@ -1,3 +1,8 @@
+------------- Release 14.4 ---------------
+* Various bugfixes.
+* Normal maps support.
+* Tangent-Binormal generation (TBS) fixed.
+
 ------------- Release 14.3 ---------------
 * Various bugfixes.
 * Normal maps support.
