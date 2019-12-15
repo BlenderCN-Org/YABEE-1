@@ -471,7 +471,8 @@ class EGGMeshObjectData(EGGBaseObjectData):
         tangent_layers = []
         for idx, uvl in enumerate(self.obj_ref.data.uv_layers):
             tangents = []
-            self.obj_ref.data.calc_tangents(uvl.name)
+            self.obj_ref.data.calc_tangents(uvmap=uvl.name)
+
             for loop in self.obj_ref.data.loops:
                 tangents.append(loop.tangent[:] + loop.bitangent[:])
             tangent_layers.append(tangents)
@@ -614,7 +615,6 @@ class EGGMeshObjectData(EGGBaseObjectData):
             tbs = ''
             if self.tangent_layers:
                 tbs = '\n    <Tangent> {%f %f %f}\n    <Binormal> {%f %f %f}' % self.tangent_layers[i][ividx]
-                attributes.append(tbs)
 
             uv_str = '  <UV> %s {\n    %f %f %s\n  }' % (
                 eggSafeName(name), data[ividx][0], data[ividx][1], tbs)
@@ -629,6 +629,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
         dxyz = self.collect_vtx_dxyz
         rgba = self.collect_vtx_rgba
         uv = self.collect_vtx_uv
+
         if USE_LOOP_NORMALS and self.obj_ref.data.has_custom_normals:
             self.map_vertex_to_loop = {self.obj_ref.data.loops[lidx].vertex_index: lidx
                                        for p in self.obj_ref.data.polygons for lidx in p.loop_indices}
@@ -689,7 +690,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
                             # print(USED_TEXTURES)
                             # we need to find a couple of textures here
                             # we do need an empty for specular but it's added somewhere else
-                            nodeNames = {"Surface": None, "Base Color": None, "Vector": None}
+                            nodeNames = {"Base Color": None, "Normal": None}
                             # let's crawl all links, find the ones connected to the Principled BSDF,
                             for link in material.node_tree.links:
                                 # if the link connects to the Principled BSDF node
@@ -700,7 +701,7 @@ class EGGMeshObjectData(EGGBaseObjectData):
                                         # we have to find the texture name here.
                                         nodeNames[link.to_socket.name] = textureNode.name
 
-                            for x in ['Surface', 'Base Color', 'Vector']:
+                            for x in ['Base Color', 'Normal']:
                                 tex = nodeNames[x]
                                 if tex:
                                     textures.append(tex)
@@ -1161,7 +1162,7 @@ def get_egg_materials_str(object_names=None):
                     basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                     metallic = principled_bsdf.inputs["Metallic"].default_value
                     roughness = principled_bsdf.inputs["Roughness"].default_value
-                    # specular = principled_bsdf.inputs["Specular"].default_value
+
                     base_r = basecol[0]
                     base_g = basecol[1]
                     base_b = basecol[2]
@@ -1186,7 +1187,7 @@ def get_egg_materials_str(object_names=None):
                             basecol = list(principled_bsdf.inputs["Base Color"].default_value)
                             metallic = principled_bsdf.inputs["Metallic"].default_value
                             roughness = principled_bsdf.inputs["Roughness"].default_value
-                            # specular = principled_bsdf.inputs["Specular"].default_value
+
                             base_r = basecol[0]
                             base_g = basecol[1]
                             base_b = basecol[2]
