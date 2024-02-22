@@ -1,11 +1,12 @@
 ![logo](http://i.imgur.com/lVMTcfS.png)
 
+Yet Another Blender Egg Exporter
+==================================
 
-YABEE 14.4
-=====
-Renewed Egg exporter for the Blender 2.8 and Panda3D
+Renewed Panda3D Egg file exporter for Blender. Supports Blender versions >=2.7+
 
-Exporting:
+# Features
+YABEE has support for exporting the following:
 - Meshes
 - UV layers
 - Materials 
@@ -15,8 +16,8 @@ Exporting:
 - ShapeKeys (morph) animation
 - Non-cyclic NURBS Curves
 
-Missing features/TODO
-=====
+# Limitations
+The following are currently not supported/implemented by YABEE:
 - Properties/tags
 - Texture baking via Cycles
 - Non-Shader Mode for Materials & Textures
