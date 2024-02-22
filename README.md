@@ -1,12 +1,14 @@
-![logo](http://i.imgur.com/lVMTcfS.png)
+![logo](img/logo.png)
 
-Yet Another Blender Egg Exporter
-==================================
+Modernized Alternative (of) Yet Another Blender Egg Exporter (MAYABEE)
+==============================================================
+MAYABEE (or MAYBEE for short) is a fork of the Yet Another Blender Egg Exporter (YABEE) plugin. It is a renewed Panda3D Egg file exporter for Blender that supports versions >=2.7+
 
-Renewed Panda3D Egg file exporter for Blender. Supports Blender versions >=2.7+
+With dozens of outdated YABEE repositories, it's hard to find which version supports modern versions of Blender. MAYBEE sticks out from the outdated YABEE variants.
+
 
 # Features
-YABEE has support for exporting the following:
+MAYBEE has support for exporting the following:
 - Meshes
 - UV layers
 - Materials 
@@ -17,14 +19,14 @@ YABEE has support for exporting the following:
 - Non-cyclic NURBS Curves
 
 # Limitations
-The following are currently not supported/implemented by YABEE:
+The following are currently not supported/implemented by MAYBEE:
 - Properties/tags
 - Texture baking via Cycles
 - Non-Shader Mode for Materials & Textures
 
 Principled Shader Support
 =====
-With the addition of the the Principled BSDF shader in Blender and the upcomming support for physically based materials 
+With the addition of the the Principled BSDF shader in Blender and the upcoming support for physically based materials 
 in Panda3D it was possible to extend YABEE to improve the workflow for artists when working in a PBR environment. 
 
 <img src="http://pasteall.org/pic/show.php?id=c278bebee6e22ce886ffd4448948c70f" />
