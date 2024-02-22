@@ -1147,7 +1147,7 @@ def get_egg_materials_str(object_names=None):
         matIsFancyPBRNode = False
         matFancyType = 0
         nodeTree = None
-        if mat.use_nodes:
+        if mat and mat.use_nodes:
             nodeTree = mat.node_tree
             if nodeTree.nodes:
                 matIsFancyPBRNode = True
